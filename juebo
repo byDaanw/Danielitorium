@@ -6,7 +6,7 @@ from pygame import mixer
 pygame.init()
 pygame.mixer.init()
 
-sonidoMenu
+sonidoMenu = mixer.Sound('in the End.mp3')
 sonidoJuego = mixer.Sound("juebomusica.mp3")
 
 # Definir colores
@@ -168,8 +168,11 @@ def game_loop():
 # Correr el menú principal primero
 main_menu()
 sonidoMenu.play()
+sonidoJuego.stop()
 # Iniciar el juego
 game_loop()
+sonidoJuego.play()
+sonidoMenu.stop()
 
 
 pygame.quit()
