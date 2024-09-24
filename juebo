@@ -6,7 +6,8 @@ from pygame import mixer
 pygame.init()
 pygame.mixer.init()
 
-sonidoMenu = mixer.Sound("A Place for My Head.mp3")
+sonidoMenu
+sonidoJuego = mixer.Sound("juebomusica.mp3")
 
 # Definir colores
 WHITE = (255, 255, 255)
@@ -18,7 +19,7 @@ BLUE = (0, 0, 255)
 WIDTH = 1366
 HEIGHT = 768
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Juego de esquivar")
+pygame.display.set_caption("Shape of The irregular Maze")
 
 # Definir fuentes
 font = pygame.font.SysFont("sans", 40)
@@ -92,9 +93,9 @@ def main_menu():
     menu = True
     while menu:
         screen.fill(BLACK)
-        draw_text("Juego de Esquivar", font, WHITE, WIDTH//2 - 150, HEIGHT//2 - 100)
-        draw_text("Presiona ENTER para comenzar", small_font, WHITE, WIDTH//2 - 180, HEIGHT//2)
-        draw_text("Presiona Q para salir", small_font, WHITE, WIDTH//2 - 100, HEIGHT//2 + 50)
+        draw_text("Shape of the irregular Maze", font, WHITE, WIDTH//2 - 200, HEIGHT//2 - 100)
+        draw_text("Presiona ENTER para comenzar", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2)
+        draw_text("Presiona ESC para salir", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2 + 50)
         
         pygame.display.update()
         
@@ -105,7 +106,7 @@ def main_menu():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     menu = False  # Salir del menú y comenzar el juego
-                if event.key == pygame.K_q:
+                if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     exit()
 
@@ -121,9 +122,9 @@ def game_loop():
 
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_LEFT] and player_pos[0] > 0:
+        if keys[pygame.K_a] and player_pos[0] > 0:
             player_pos[0] -= speed1
-        if keys[pygame.K_RIGHT] and player_pos[0] < WIDTH - player_size:
+        if keys[pygame.K_d] and player_pos[0] < WIDTH - player_size:
             player_pos[0] += speed1
 
         screen.fill(BLACK)
@@ -146,11 +147,30 @@ def game_loop():
         # Controlar la velocidad del juego
         clock.tick(30)
 
+        def pantallaMuerte():
+            muerte = True
+            while muerte:
+                draw_text("Deseas Reintentar?",small_font, WHITE, WIDTH//2 - 50, HEIGHT//2)
+                pygame.display.update()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    menu = False  # Salir del menú y comenzar el juego
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    exit()
+            
+
 # Correr el menú principal primero
-sonidoMenu.play()
 main_menu()
+sonidoMenu.play()
 # Iniciar el juego
 game_loop()
+
 
 pygame.quit()
 
