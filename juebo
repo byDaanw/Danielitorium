@@ -6,7 +6,7 @@ from pygame import mixer
 pygame.init()
 pygame.mixer.init()
 
-sonidoMenu = mixer.Sound('in the End.mp3')
+sonidoMenu = mixer.Sound("bye bye bye.mp3")
 sonidoJuego = mixer.Sound("juebomusica.mp3")
 
 # Definir colores
@@ -26,17 +26,17 @@ font = pygame.font.SysFont("sans", 40)
 small_font = pygame.font.SysFont("sans", 30)
 
 # Definir el jugador (un cuadrado)
-player_size = 5
+player_size = 15
 player_pos = [WIDTH // 2, HEIGHT - 10 * player_size]
 
 # Definir los obstáculos
-enemy_size = 50
+enemy_size = 100
 enemy_pos = [random.randint(0, WIDTH-enemy_size), 0]
 enemy_list = [enemy_pos]
 
 # Definir velocidades
-speed = 5
-speed1 = 5
+speed = 10
+speed1 = 10
 
 # Establecer el reloj del juego
 clock = pygame.time.Clock()
@@ -49,7 +49,7 @@ def draw_text(text, font, color, x, y):
 # Función para generar enemigos
 def drop_enemies(enemy_list):
     delay = random.random()
-    if len(enemy_list) < 100 and delay < 1:
+    if len(enemy_list) < 20 and delay < 10 :
         x_pos = random.randint(0, WIDTH-enemy_size)
         enemy_list.append([x_pos, 0])
 
@@ -93,7 +93,7 @@ def main_menu():
     menu = True
     while menu:
         screen.fill(BLACK)
-        draw_text("Shape of the irregular Maze", font, WHITE, WIDTH//2 - 200, HEIGHT//2 - 100)
+        draw_text("Beat the Wall", font, WHITE, WIDTH//2 - 200, HEIGHT//2 - 100)
         draw_text("Presiona ENTER para comenzar", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2)
         draw_text("Presiona ESC para salir", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2 + 50)
         
@@ -166,9 +166,11 @@ def game_loop():
             
 
 # Correr el menú principal primero
-main_menu()
 sonidoMenu.play()
 sonidoJuego.stop()
+main_menu()
+sonidoJuego.play()
+sonidoMenu.stop()
 # Iniciar el juego
 game_loop()
 sonidoJuego.play()
