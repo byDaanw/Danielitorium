@@ -93,7 +93,7 @@ def main_menu():
     menu = True
     while menu:
         screen.fill(BLACK)
-        draw_text("Beat the Wall", font, WHITE, WIDTH//2 - 200, HEIGHT//2 - 100)
+        draw_text("Shape of the Cubito 2", font, WHITE, WIDTH//2 - 200, HEIGHT//2 - 100)
         draw_text("Presiona ENTER para comenzar", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2)
         draw_text("Presiona ESC para salir", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2 + 50)
         
@@ -130,9 +130,12 @@ def game_loop():
         if keys[pygame.K_w] and player_pos[1] > 0:
             player_pos[1] -= speed1
             
-        if keys[pygame.K_s] and player_pos[1] > 0:
+        if keys[pygame.K_s] and player_pos[1] < HEIGHT - player_size:
             player_pos[1] += speed1
-        
+
+        # Verificar si el jugador toca el borde de la pantalla
+        if player_pos[0] <= 0 or player_pos[0] >= WIDTH - player_size or player_pos[1] <= 0 or player_pos[1] >= HEIGHT - player_size:
+            game_over = True
 
         screen.fill(BLACK)
 
@@ -143,9 +146,7 @@ def game_loop():
             game_over = True
 
         draw_enemies(enemy_list)
-
         pygame.draw.rect(screen, WHITE, (player_pos[0], player_pos[1], player_size, player_size))
-
         draw_text(f"Score: {score}", small_font, WHITE, 10, 10)
 
         # Actualizar pantalla
@@ -154,23 +155,12 @@ def game_loop():
         # Controlar la velocidad del juego
         clock.tick(30)
 
-        def pantallaMuerte():
-            muerte = True
-            while muerte:
-                draw_text("Deseas Reintentar?",small_font, WHITE, WIDTH//2 - 50, HEIGHT//2)
-                pygame.display.update()
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    menu = False  # Salir del menú y comenzar el juego
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    exit()
-            
+    # Pantalla de "Game Over"
+    screen.fill(BLACK)
+    draw_text("Game Over", font, RED, WIDTH//2 - 100, HEIGHT//2 - 50)
+    draw_text(f"Score: {score}", small_font, WHITE, WIDTH//2 - 50, HEIGHT//2)
+    pygame.display.update()
+    pygame.time.wait(3000)
 
 # Correr el menú principal primero
 sonidoMenu.play()
@@ -180,8 +170,7 @@ sonidoJuego.play()
 sonidoMenu.stop()
 # Iniciar el juego
 game_loop()
-
-
 pygame.quit()
+
 
 
