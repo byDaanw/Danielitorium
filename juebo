@@ -1,6 +1,28 @@
 import pygame
 import random
 from pygame import mixer
+import json
+
+# Función para cargar el récord desde el archivo JSON
+def cargar_record():
+    try:
+        with open('datos.json', 'r') as file:
+            datos = json.load(file)
+            record = datos.get('record', 0)  # Si 'record' no existe, inicializa en 0
+            return record, datos
+    except FileNotFoundError:
+        return 0, {"record": 0}
+
+# Función para guardar el nuevo récord en el archivo JSON
+def guardar_record(nuevo_record, datos):
+    with open('datos.json', 'w') as file:
+        datos['record'] = nuevo_record
+        json.dump(datos, file)
+        print(f"Nuevo récord guardado: {nuevo_record}")
+
+# Cargar el récord al inicio del juego
+record, datos = cargar_record()
+print(f"Récord actual: {record}")
 
 # Inicializar Pygame
 pygame.init()
@@ -55,12 +77,16 @@ def drop_enemies(enemy_list):
 
 # Función para mover los enemigos
 def update_enemy_positions(enemy_list, score):
+    global record  # Asegurarse de que se usa la variable global
     for idx, enemy_pos in enumerate(enemy_list):
         if enemy_pos[1] >= 0 and enemy_pos[1] < HEIGHT:
             enemy_pos[1] += speed
         else:
             enemy_list.pop(idx)
             score += 1
+            if score > record:
+                record = score
+                guardar_record(record, datos)  # Guardar el nuevo récord
     return score
 
 # Función para detectar colisiones
@@ -130,9 +156,8 @@ def game_loop():
         if keys[pygame.K_w] and player_pos[1] > 0:
             player_pos[1] -= speed1
             
-        if keys[pygame.K_s] and player_pos[1] > 0:
+        if keys[pygame.K_s] and player_pos[1] < HEIGHT - player_size:
             player_pos[1] += speed1
-        
 
         screen.fill(BLACK)
 
@@ -154,11 +179,19 @@ def game_loop():
         # Controlar la velocidad del juego
         clock.tick(30)
 
-        def pantallaMuerte():
-            muerte = True
-            while muerte:
-                draw_text("Deseas Reintentar?",small_font, WHITE, WIDTH//2 - 50, HEIGHT//2)
-                pygame.display.update()
+    # Pantalla de muerte
+    pantalla_muerte(score)
+
+# Función para mostrar pantalla de muerte
+def pantalla_muerte(score):
+    while True:
+        screen.fill(BLACK)
+        draw_text("Game Over", font, WHITE, WIDTH//2 - 100, HEIGHT//2 - 50)
+        draw_text(f"Tu puntuación: {score}", small_font, WHITE, WIDTH//2 - 100, HEIGHT//2)
+        draw_text("Presiona ENTER para reiniciar", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2 + 50)
+        draw_text("Presiona ESC para salir", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2 + 100)
+
+        pygame.display.update()
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -166,11 +199,10 @@ def game_loop():
                 exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    menu = False  # Salir del menú y comenzar el juego
+                    game_loop()  # Reiniciar el juego
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     exit()
-            
 
 # Correr el menú principal primero
 sonidoMenu.play()
@@ -178,12 +210,8 @@ sonidoJuego.stop()
 main_menu()
 sonidoJuego.play()
 sonidoMenu.stop()
+
 # Iniciar el juego
 game_loop()
-sonidoJuego.play()
-sonidoMenu.stop()
-
 
 pygame.quit()
-
-
