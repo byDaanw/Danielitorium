@@ -1,0 +1,157 @@
+import pygame
+import random
+from pygame import mixer
+
+# Inicializar Pygame
+pygame.init()
+pygame.mixer.init()
+
+sonidoMenu = mixer.Sound("A Place for My Head.mp3")
+
+# Definir colores
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+# Configurar la pantalla
+WIDTH = 1366
+HEIGHT = 768
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Juego de esquivar")
+
+# Definir fuentes
+font = pygame.font.SysFont("sans", 40)
+small_font = pygame.font.SysFont("sans", 30)
+
+# Definir el jugador (un cuadrado)
+player_size = 5
+player_pos = [WIDTH // 2, HEIGHT - 10 * player_size]
+
+# Definir los obstáculos
+enemy_size = 50
+enemy_pos = [random.randint(0, WIDTH-enemy_size), 0]
+enemy_list = [enemy_pos]
+
+# Definir velocidades
+speed = 5
+speed1 = 5
+
+# Establecer el reloj del juego
+clock = pygame.time.Clock()
+
+# Función para mostrar el texto en pantalla
+def draw_text(text, font, color, x, y):
+    label = font.render(text, True, color)
+    screen.blit(label, (x, y))
+
+# Función para generar enemigos
+def drop_enemies(enemy_list):
+    delay = random.random()
+    if len(enemy_list) < 100 and delay < 1:
+        x_pos = random.randint(0, WIDTH-enemy_size)
+        enemy_list.append([x_pos, 0])
+
+# Función para mover los enemigos
+def update_enemy_positions(enemy_list, score):
+    for idx, enemy_pos in enumerate(enemy_list):
+        if enemy_pos[1] >= 0 and enemy_pos[1] < HEIGHT:
+            enemy_pos[1] += speed
+        else:
+            enemy_list.pop(idx)
+            score += 1
+    return score
+
+# Función para detectar colisiones
+def detect_collision(player_pos, enemy_pos):
+    p_x = player_pos[0]
+    p_y = player_pos[1]
+
+    e_x = enemy_pos[0]
+    e_y = enemy_pos[1]
+
+    if (e_x >= p_x and e_x < (p_x + player_size)) or (p_x >= e_x and p_x < (e_x + enemy_size)):
+        if (e_y >= p_y and e_y < (p_y + player_size)) or (p_y >= e_y and p_y < (e_y + enemy_size)):
+            return True
+    return False
+
+# Función para revisar si hay colisiones
+def check_collisions(enemy_list, player_pos):
+    for enemy_pos in enemy_list:
+        if detect_collision(player_pos, enemy_pos):
+            return True
+    return False
+
+# Función para dibujar enemigos
+def draw_enemies(enemy_list):
+    for enemy_pos in enemy_list:
+        pygame.draw.rect(screen, RED, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
+
+# Función para el menú principal
+def main_menu():
+    menu = True
+    while menu:
+        screen.fill(BLACK)
+        draw_text("Juego de Esquivar", font, WHITE, WIDTH//2 - 150, HEIGHT//2 - 100)
+        draw_text("Presiona ENTER para comenzar", small_font, WHITE, WIDTH//2 - 180, HEIGHT//2)
+        draw_text("Presiona Q para salir", small_font, WHITE, WIDTH//2 - 100, HEIGHT//2 + 50)
+        
+        pygame.display.update()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    menu = False  # Salir del menú y comenzar el juego
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    exit()
+
+# Función del bucle principal del juego
+def game_loop():
+    game_over = False
+    score = 0
+
+    while not game_over:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over = True
+
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_LEFT] and player_pos[0] > 0:
+            player_pos[0] -= speed1
+        if keys[pygame.K_RIGHT] and player_pos[0] < WIDTH - player_size:
+            player_pos[0] += speed1
+
+        screen.fill(BLACK)
+
+        drop_enemies(enemy_list)
+        score = update_enemy_positions(enemy_list, score)
+
+        if check_collisions(enemy_list, player_pos):
+            game_over = True
+
+        draw_enemies(enemy_list)
+
+        pygame.draw.rect(screen, WHITE, (player_pos[0], player_pos[1], player_size, player_size))
+
+        draw_text(f"Score: {score}", small_font, WHITE, 10, 10)
+
+        # Actualizar pantalla
+        pygame.display.update()
+
+        # Controlar la velocidad del juego
+        clock.tick(30)
+
+# Correr el menú principal primero
+sonidoMenu.play()
+main_menu()
+# Iniciar el juego
+game_loop()
+
+pygame.quit()
+
+
