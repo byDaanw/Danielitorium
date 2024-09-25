@@ -6,8 +6,8 @@ from pygame import mixer
 pygame.init()
 pygame.mixer.init()
 
-sonidoMenu = mixer.Sound("bye bye bye.mp3")
-sonidoJuego = mixer.Sound("juebomusica.mp3")
+sonidoJuego = mixer.Sound("Lchavasse Wander.mp3")
+sonidoMenu = mixer.Sound("juebomusica.mp3")
 
 # Definir colores
 WHITE = (255, 255, 255)
@@ -26,11 +26,11 @@ font = pygame.font.SysFont("sans", 40)
 small_font = pygame.font.SysFont("sans", 30)
 
 # Definir el jugador (un cuadrado)
-player_size = 15
+player_size = 10
 player_pos = [WIDTH // 2, HEIGHT - 10 * player_size]
 
 # Definir los obstáculos
-enemy_size = 50
+enemy_size = 100
 enemy_pos = [random.randint(0, WIDTH-enemy_size), 0]
 enemy_list = [enemy_pos]
 
@@ -49,7 +49,7 @@ def draw_text(text, font, color, x, y):
 # Función para generar enemigos
 def drop_enemies(enemy_list):
     delay = random.random()
-    if len(enemy_list) < 30 and delay < 0.2:
+    if len(enemy_list) < 50 and delay < 0.2:
         x_pos = random.randint(0, WIDTH-enemy_size)
         enemy_list.append([x_pos, 0])
 
