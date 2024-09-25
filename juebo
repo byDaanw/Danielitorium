@@ -6,6 +6,7 @@ from pygame import mixer
 pygame.init()
 pygame.mixer.init()
 
+SonidoAmbiente = mixer.Sound("Rain Ambience.mp3")
 sonidoJuego = mixer.Sound("Lchavasse Wander.mp3")
 sonidoMenu = mixer.Sound("juebomusica.mp3")
 
