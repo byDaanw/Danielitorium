@@ -9,6 +9,8 @@ pygame.mixer.init()
 SonidoAmbiente = mixer.Sound("Rain Ambience.mp3")
 sonidoJuego = mixer.Sound("Lchavasse Wander.mp3")
 sonidoMenu = mixer.Sound("juebomusica.mp3")
+high_score = 0
+score = 0
 
 
 # Definir colores
@@ -34,9 +36,9 @@ player_pos = [WIDTH // 2, HEIGHT - 10 * player_size]
 
 # Definir los obstáculos
 enemy_size = 100
-enemy_pos = [random.randint(0, WIDTH-enemy_size), 0]
-enemy_list = [enemy_pos]
-
+#enemy_pos = [random.randint(0, WIDTH-enemy_size), 0]
+#enemy_list = [enemy_pos]
+enemy_list =[]
 # Definir velocidades
 speed = 10
 speed1 = 20
@@ -112,25 +114,26 @@ def main_menu():
                     menu = False  # Salir del menú y comenzar el juego
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
+                   
                     exit()
+            
 
 # Función del bucle principal del juego
 
 
+
 try:
     with open("high_score.txt", "r") as f:
-        high_score = (f.read())
+        high_score = int(f.read())
 except FileNotFoundError:
     pass
 
 
 def game_loop():
     game_over = False
-    score = 0
-    high_score = 0
+    global score 
+    global high_score
 
-    if score > high_score:
-        high_score = score
 
 
     while not game_over:
@@ -161,17 +164,23 @@ def game_loop():
         score = update_enemy_positions(enemy_list, score)
 
         if check_collisions(enemy_list, player_pos):
+            print("colision")
             game_over = True
+
+        if score > high_score:
+           high_score = score
+
+        with open("high_score.txt", "w") as f:
+            f.write(str(high_score))
 
         draw_enemies(enemy_list)
         pygame.draw.rect(screen, WHITE, (player_pos[0], player_pos[1], player_size, player_size))
         draw_text(f"Score: {score}", small_font, WHITE, 10, 10)
         score_text = font.render(f"Puntaje: {score}", True, (255, 255, 255))
-        screen.blit(score_text, (10, 10))
-        screen.blit(high_score.txt, (screen.get_width() - high_score.txt.get_width() - 10, 10))
+        high_score_text = font.render(f"Puntaje más alto: {high_score}", True, (255, 255, 255))
+        screen.blit(high_score_text, (screen.get_width() - high_score_text.get_width() - 10, 10))
 
-        with open("high_score.txt", "w") as f:
-         f.write(str(high_score))
+       
 
         # Actualizar pantalla
         pygame.display.update()
@@ -186,17 +195,26 @@ def game_loop():
     pygame.display.update()
     pygame.time.wait(3000)
 
-# Correr el menú principal primero
-sonidoMenu.play()
-sonidoJuego.stop()
-SonidoAmbiente.stop()
-main_menu()
-SonidoAmbiente.play()
-sonidoJuego.play()
-sonidoMenu.stop()
-# Iniciar el juego
-game_loop()
-pygame.quit()
+
+
+while True:
+    
+    # Correr el menú principal primero
+    sonidoMenu.play()
+    sonidoJuego.stop()
+    SonidoAmbiente.stop()
+    main_menu()
+    game_over = False
+    score = 0
+    SonidoAmbiente.play()
+    sonidoJuego.play()
+    sonidoMenu.stop()
+    enemy_list=[]
+    # Iniciar el juego
+    game_loop()
+
+#game_loop()
+#pygame.quit()
 
 
 
