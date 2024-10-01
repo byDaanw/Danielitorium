@@ -57,7 +57,7 @@ def draw_text(text, font, color, x, y):
     label = font.render(text, True, color)
     screen.blit(label, (x, y))
 
-# Función para generar enemigos
+# Función para generar enemigosasd
 """def drop_enemies(enemy_list):
     delay = random.random()
     if len(enemy_list) < 50 and delay < 0.2:
