@@ -28,14 +28,19 @@ print(f"Récord actual: {record}")
 pygame.init()
 pygame.mixer.init()
 
-sonidoMenu = mixer.Sound("bye bye bye.mp3")
-sonidoJuego = mixer.Sound("juebomusica.mp3")
+SonidoAmbiente = mixer.Sound("Rain Ambience.mp3")
+sonidoJuego = mixer.Sound("Lchavasse Wander.mp3")
+sonidoMenu = mixer.Sound("juebomusica.mp3")
+high_score = 0
+score = 0
+
 
 # Definir colores
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
+WhiteBlue = (200,200,255)
 
 # Configurar la pantalla
 WIDTH = 1366
@@ -48,12 +53,14 @@ font = pygame.font.SysFont("sans", 40)
 small_font = pygame.font.SysFont("sans", 30)
 
 # Definir el jugador (un cuadrado)
-player_size = 15
+player_size = 10
 player_pos = [WIDTH // 2, HEIGHT - 10 * player_size]
 
-# Definir el tamaño del enemigo
-enemy_size = 50
-
+# Definir los obstáculos
+enemy_size = 100
+#enemy_pos = [random.randint(0, WIDTH-enemy_size), 0]
+#enemy_list = [enemy_pos]
+enemy_list =[]
 # Definir velocidades
 speed = 10
 speed1 = 20
@@ -69,7 +76,7 @@ def draw_text(text, font, color, x, y):
 # Función para generar enemigos
 def drop_enemies(enemy_list):
     delay = random.random()
-    if len(enemy_list) < 30 and delay < 0.2:
+    if len(enemy_list) < 50 and delay < 0.2:
         x_pos = random.randint(0, WIDTH-enemy_size)
         enemy_list.append([x_pos, 0])
 
@@ -110,14 +117,15 @@ def check_collisions(enemy_list, player_pos):
 # Función para dibujar enemigos
 def draw_enemies(enemy_list):
     for enemy_pos in enemy_list:
-        pygame.draw.rect(screen, RED, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
+        pygame.draw.rect(screen, WhiteBlue, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
+       # pygame.draw.rect(screen, RED, (enemy_pos[0], enemy_pos[1], enemy_size, enemy_size))
 
 # Función para el menú principal
 def main_menu():
     menu = True
     while menu:
         screen.fill(BLACK)
-        draw_text("Beat the Wall", font, WHITE, WIDTH//2 - 200, HEIGHT//2 - 100)
+        draw_text("Shape of the Cubito 2", font, WHITE, WIDTH//2 - 200, HEIGHT//2 - 100)
         draw_text("Presiona ENTER para comenzar", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2)
         draw_text("Presiona ESC para salir", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2 + 50)
         
@@ -132,13 +140,27 @@ def main_menu():
                     menu = False  # Salir del menú y comenzar el juego
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
+                   
                     exit()
+            
 
 # Función del bucle principal del juego
+
+
+
+try:
+    with open("high_score.txt", "r") as f:
+        high_score = int(f.read())
+except FileNotFoundError:
+    pass
+
+
 def game_loop():
     game_over = False
-    score = 0
-    enemy_list = []  # Reiniciar la lista de enemigos
+    global score 
+    global high_score
+
+
 
     while not game_over:
         for event in pygame.event.get():
@@ -158,19 +180,33 @@ def game_loop():
         if keys[pygame.K_s] and player_pos[1] < HEIGHT - player_size:
             player_pos[1] += speed1
 
+        # Verificar si el jugador toca el borde de la pantalla
+        if player_pos[0] <= 0 or player_pos[0] >= WIDTH - player_size or player_pos[1] <= 0 or player_pos[1] >= HEIGHT - player_size:
+            game_over = True
+
         screen.fill(BLACK)
 
         drop_enemies(enemy_list)
         score = update_enemy_positions(enemy_list, score)
 
         if check_collisions(enemy_list, player_pos):
+            print("colision")
             game_over = True
 
+        if score > high_score:
+           high_score = score
+
+        with open("high_score.txt", "w") as f:
+            f.write(str(high_score))
+
         draw_enemies(enemy_list)
-
         pygame.draw.rect(screen, WHITE, (player_pos[0], player_pos[1], player_size, player_size))
-
         draw_text(f"Score: {score}", small_font, WHITE, 10, 10)
+        score_text = font.render(f"Puntaje: {score}", True, (255, 255, 255))
+        high_score_text = font.render(f"Puntaje más alto: {high_score}", True, (255, 255, 255))
+        screen.blit(high_score_text, (screen.get_width() - high_score_text.get_width() - 10, 10))
+
+       
 
         # Actualizar pantalla
         pygame.display.update()
@@ -178,39 +214,33 @@ def game_loop():
         # Controlar la velocidad del juego
         clock.tick(30)
 
-    # Pantalla de muerte
-    pantalla_muerte(score)
+    # Pantalla de "Game Over"
+    screen.fill(BLACK)
+    draw_text("Game Over", font, RED, WIDTH//2 - 100, HEIGHT//2 - 50)
+    draw_text(f"Score: {score}", small_font, WHITE, WIDTH//2 - 50, HEIGHT//2)
+    pygame.display.update()
+    pygame.time.wait(3000)
 
-# Función para mostrar pantalla de muerte
-def pantalla_muerte(score):
-    while True:
-        screen.fill(BLACK)
-        draw_text("Game Over", font, WHITE, WIDTH//2 - 100, HEIGHT//2 - 50)
-        draw_text(f"Tu puntuación: {score}", small_font, WHITE, WIDTH//2 - 100, HEIGHT//2)
-        draw_text("Presiona ENTER para reiniciar", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2 + 50)
-        draw_text("Presiona ESC para salir", small_font, WHITE, WIDTH//2 - 200, HEIGHT//2 + 100)
 
-        pygame.display.update()
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    game_loop()  # Reiniciar el juego
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    exit()
 
-# Correr el menú principal primero
-sonidoMenu.play()
-sonidoJuego.stop()
-main_menu()
-sonidoJuego.play()
-sonidoMenu.stop()
+while True:
+    
+    # Correr el menú principal primero
+    sonidoMenu.play()
+    sonidoJuego.stop()
+    SonidoAmbiente.stop()
+    main_menu()
+    game_over = False
+    score = 0
+    SonidoAmbiente.play()
+    sonidoJuego.play()
+    sonidoMenu.stop()
+    enemy_list=[]
+    # Iniciar el juego
+    game_loop()
 
-# Iniciar el juego
-game_loop()
+#game_loop()
+#pygame.quit()
 
-pygame.quit()
+
+
