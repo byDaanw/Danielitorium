@@ -156,11 +156,28 @@ def game_loop():
                     move_right = True
                     current_lane += 1
                     player_pos[0] = lanes[current_lane] + (lane_width - player_size) // 2
+                    
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT and not move_left and current_lane > 0:  # Mover a la izquierda si no está en el primer carril
+                        move_left = True
+                        current_lane -= 1
+                        player_pos[0] = lanes[current_lane] + (lane_width - player_size) // 2
+                    if event.key == pygame.K_RIGHT and not move_right and current_lane < num_lanes - 1:  # Mover a la derecha si no está en el último carril
+                        move_right = True
+                        current_lane += 1
+                        player_pos[0] = lanes[current_lane] + (lane_width - player_size) // 2
+                    
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_a:
                     move_left = False
                 if event.key == pygame.K_d:
+                    move_right = False
+                    
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT:
+                    move_left = False
+                if event.key == pygame.K_RIGHT:
                     move_right = False
 
         # Limpiar la pantalla
